@@ -23,7 +23,7 @@ queries. Codegen tools exist for many platforms. As an example, [here's some inf
 
 GraphQL is a "nullable by default" language meaning that all properties are allowed to be `null`.
 This is in contrast to the two modern languages used on mobile clients, Swift and Kotlin,
-which are both non-null by default languages. In Swift and Kotlin, unless developers otherwise
+which are both non-null by default. In Swift and Kotlin, unless developers otherwise
 specify it, properties cannot be `null`.
 
 This mismatch creates some dissonance for developers who are currently forced into dealing the
@@ -65,19 +65,17 @@ query GetBusinessName($encid: String!) {
 ```
 Semantically the GraphQL `!` operator is nearly identical to it's counter-part in Swift (also represented by `!`) which is
 referred to as the "force unwrap operator". In Swift, for example, you can cast a string to an integer with `Int("5")` 
-but the string being cast may not be a valid number, so that statement can return `null`. If you want to ensure
-that the statement does not return `null` you can instead write `Int("5")!`. If you do that, an exception will be
-thrown if the statement would return `null`.
+but the string being cast may not be a valid number, so that statement will return `null` rather than an integer if the
+string cannot be turned into an integer. If you want to ensure that the statement does not return `null` you can instead 
+write `Int("5")!`. If you do that, an exception will be thrown if the statement would return `null`.
 
 In GraphQL, the `!` operator will act similarly. In the case that `name` does not exist, the query will return an
-error rather than any data.
+error to the client rather than any data.
 
 On web where codegen is not used, the client no longer needs to handle the case where expected fields are missing.
 On mobile platforms where codegen is used, clients have full control over the nullability of the properties on the
 generated types. Since nullability is expressed in the query rather than the schema, it's flexible enough to accommodate
 various use-cases (e.g., where the business `name` _is_ allowed to be nullable).
-
-In the case that a field decorated with `!` is `null`, the server is expected to return an error to the client.
 
 ### `!`
 
@@ -87,10 +85,11 @@ Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which bo
 
 ### Use cases
 
-#### When a field is necessary to the function of the app
+#### When a field is necessary to the function of the client
 
 ### ✨ Examples
 
+#### Non-nullable field
 ```graphql
 query GetBusinessName($encid: String!) {
   business(encid: $encid) {
@@ -103,6 +102,18 @@ would codegen to the following type on iOS.
 ```swift
 struct GetBusinessNameQuery.Data.Business {
   let name: String // lack of `?` indicates that `name` will never be `null`
+}
+```
+
+#### Non-nullable object with nullable fields
+```graphql
+query {
+  business(id: 4) {
+    reviews! {
+      rating
+      text
+    }
+  }
 }
 ```
 
@@ -120,6 +131,19 @@ Discussion on [this topic can be found here](https://medium.com/@calebmer/when-t
 ### Alternatives to `!`
 #### `!!`
 This would follow the precedent set by Kotlin.
+
+### Make non-nullability apply recursively
+For example, everything in this tree would be non-nullable
+```graphql
+query! {
+  business(id: 4) {
+    name
+  }
+}
+```
+// TODO: This was rejected when it was proposed. Looking for more info as to why
+
+
 
 ## Implementation
 https://github.yelpcorp.com/wxue/graphql-js
