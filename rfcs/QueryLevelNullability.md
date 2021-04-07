@@ -63,6 +63,15 @@ query GetBusinessName($encid: String!) {
   }
 }
 ```
+Semantically the GraphQL `!` operator is nearly identical to it's counter-part in Swift (also represented by `!`) which is
+referred to as the "force unwrap operator". In Swift, for example, you can cast a string to an integer with `Int("5")` 
+but the string being cast may not be a valid number, so that statement can return `null`. If you want to ensure
+that the statement does not return `null` you can instead write `Int("5")!`. If you do that, an exception will be
+thrown if the statement would return `null`.
+
+In GraphQL, the `!` operator will act similarly. In the case that `name` does not exist, the query will return an
+error rather than any data.
+
 On web where codegen is not used, the client no longer needs to handle the case where expected fields are missing.
 On mobile platforms where codegen is used, clients have full control over the nullability of the properties on the
 generated types. Since nullability is expressed in the query rather than the schema, it's flexible enough to accommodate
@@ -77,6 +86,8 @@ Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which bo
 "throw an exception if this value is `null`". 
 
 ### Use cases
+
+#### When a field is necessary to the function of the app
 
 ### ✨ Examples
 
