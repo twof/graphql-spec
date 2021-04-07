@@ -9,11 +9,15 @@ express "nullability" in their queries.
 
 ## Defintions
 
-Nullability: a concept that exists accross many programming lanugage (eg [Swift](https://developer.apple.com/documentation/swift/optional), [Kotlin](https://kotlinlang.org/docs/null-safety.html#nullable-types-and-non-null-types), [SQL](https://www.w3schools.com/sql/sql_notnull.asp))
+Nullability: A concept that exists accross many programming lanugage (eg [Swift](https://developer.apple.com/documentation/swift/optional), [Kotlin](https://kotlinlang.org/docs/null-safety.html#nullable-types-and-non-null-types), [SQL](https://www.w3schools.com/sql/sql_notnull.asp))
 that is used to express when users can be certain that a value can or can never be `null` 
 (or the language equivilent). Nullability language constructs (eg `?` in Swift/Kotlin)
 have become popular due to their ability to solve ergonomic problems in languages
 such as those surrounding `NullPointerException` in Java.
+
+Codegen: Short for Code Generation, tools that exist for working with GraphQL which take queries as
+input and output code in a language of choice that represents data that will result from those 
+queries. Codegen tools exist for many platforms. As an example, [here's some info about Apollo's offerings.](https://github.com/apollographql/apollo-tooling#code-generation)
 
 ## 📜 Problem Statement
 
@@ -31,7 +35,7 @@ This adheres to what seems to be the [official best practice](https://graphql.or
 
 This poses a problem for the mobile clients that use Apollo's codegen feature. The codegen provides 
 Swift/Kotlin types to represent queries used in the app. Nullable fields in the schema are represented
-as optional properties on the resulting type:
+as nullable properties on the resulting type, represented by `?` following the type name:
 ```graphql
 query GetBusinessName($encid: String!) {
   business(encid: $encid) {
@@ -46,7 +50,7 @@ struct GetBusinessNameQuery.Data.Business {
 ```
 In many cases, the client should error if the business `name` is nil. If codegen were out of the picture,
 we would be able to throw an error at JSON response-parsing time if it's missing, or otherwise instantiate
-a hand-written business object with a non-optional `name` property. From that point on, all feature code
+a hand-written business object with a non-nullable `name` property. From that point on, all feature code
 can happily assume that it has a non-nil business name to work with.
 
 ## 🧑‍💻 Proposed syntax
@@ -59,9 +63,9 @@ query GetBusinessName($encid: String!) {
 }
 ```
 On web where codegen is not used, the client no longer needs to handle the case where expected fields are missing.
-On mobile platforms where codegen is used, clients have full control over the optionality of the properties on the
-generated types. Since optionality is expressed in the query rather than the schema, it's flexible enough to accommodate
-various use-cases (e.g., where the business `name` _is_ allowed to be optional).
+On mobile platforms where codegen is used, clients have full control over the nullability of the properties on the
+generated types. Since nullability is expressed in the query rather than the schema, it's flexible enough to accommodate
+various use-cases (e.g., where the business `name` _is_ allowed to be nullable).
 
 ## Implementation
 https://github.yelpcorp.com/wxue/graphql-js
