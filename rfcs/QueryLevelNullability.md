@@ -1,8 +1,9 @@
 # RFC: Query Level Nullability 
 
 **Proposed by:** 
-- [Liz Jakubowski](<social or github link here>) - Yelp
-- [Alex Reilly](<social or github link here>) - Yelp
+- [Liz Jakubowski](<social or github link here>) - Yelp iOS
+- [Alex Reilly](<social or github link here>) - Yelp iOS
+- [Sanae Rosen](<social or github link here>) - Yelp Android
 
 This RFC proposes creating a syntactical construct for client developers to 
 express "nullability" in their queries.
@@ -15,7 +16,7 @@ that is used to express when users can be certain that a value can or can never 
 have become popular due to their ability to solve ergonomic problems in languages
 such as those surrounding `NullPointerException` in Java.
 
-Codegen: Short for Code Generation, tools that exist for working with GraphQL which take queries as
+Codegen: Short for Code Generation, tools that exist for working with GraphQL which take queries and schemas as
 input and output code in a language of choice that represents data that will result from those 
 queries. Codegen tools exist for many platforms. As an example, [here's some info about Apollo's offerings.](https://github.com/apollographql/apollo-tooling#code-generation)
 
@@ -28,7 +29,13 @@ specify it, properties cannot be `null`.
 
 This mismatch creates some dissonance for developers who are currently forced into dealing the
 problems that commonly surround nullablility in codebases that otherwise do not need to deal with
-those problems.
+those problems. This makes large numbers of nulls tedious and time-consuming to handle.
+
+It is often unclear how to handle partial results.
+- What elements are essential to having an adequate user experience? How many elements can fail before you 
+  should just show an error message instead?
+- When any combination of elements can fail, it is very hard to anticipate all edge cases and how the app 
+  might look and work, including transitions to other screens.
 
 In Yelp's GraphQL schema, almost all object fields are nullable except for those with ID type. 
 This adheres to what seems to be the [official best practice](https://graphql.org/learn/best-practices/#nullability).
@@ -86,6 +93,10 @@ Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which bo
 ### Use cases
 
 #### When a field is necessary to the function of the client
+There are times where a field can be `null`, but a feature that queries for the field will not function
+if it is `null`. For example if you are trying to render an information page for a movie, you won't
+be able to do that if the name field of the movie is missing. In that case it would be preferable
+to fail as early as possible.
 
 ### ✨ Examples
 
@@ -128,6 +139,16 @@ query {
 Discussion on [this topic can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
 // We definitely want to flesh this out
 
+### Use a directive such as `@non-null` instead
+This is the alternative being used at some of the companies represented in this proposal for the time being.
+However this feels like a common enough need to call for a language feature. A single language feature
+rather than using directives as a workaround would enable more unified public tooling around GraphQL.
+
+### Write wrapper types that null-check fields
+This is the alternative being used at some of the companies represented in this proposal for the time being.
+It's quite labor intensive and the work is quite rote. It more or less undermines the purpose of
+having code generation.
+
 ### Alternatives to `!`
 #### `!!`
 This would follow the precedent set by Kotlin.
@@ -143,143 +164,15 @@ query! {
 ```
 // TODO: This was rejected when it was proposed. Looking for more info as to why
 
-
-
-## Implementation
-https://github.yelpcorp.com/wxue/graphql-js
-
-### // EVERYTHING BELOW THIS POINT IS NOT RELATED TO THE WIP RFC. IT IS BEING USED
-### // AS A TEMPLATE
-
-## 🎨 Prior art
-
-- The name "schema coordinates" is inspired from [GraphQL Java](https://github.com/graphql-java/graphql-java)
-  (4.3k stars), where "field coordinates" are already used in a similar way as
-  described in this RFC.
-
-  - [GitHub comment](https://github.com/graphql/graphql-spec/issues/735#issuecomment-646979049)
-  - [Implementation](https://github.com/graphql-java/graphql-java/blob/2acb557474ca73/src/main/java/graphql/schema/FieldCoordinates.java)
-
-- GraphiQL displays schema coordinates in its documentation search tab:
-
-  ![](https://i.fluffy.cc/5Cz9cpwLVsH1FsSF9VPVLwXvwrGpNh7q.png)
-
-- [GraphQL Inspector](https://github.com/kamilkisiela/graphql-inspector) (840
-  stars) shows schema coordinates in its output:
-
-  ![](https://i.imgur.com/HAf18rz.png)
-
-- [Apollo Studio](https://www.apollographql.com/docs/studio/) shows schema
-  coordinates when hovering over fields in a query:
-
-  ![](https://i.fluffy.cc/g78sJCjCJ0MsbNPhvgPXP46Kh9knBCKF.png)
-
-
-
 ## 🙅 Syntax Non-goals
 
 This syntax consciously does not cover the following use cases:
 
-- **Wildcard selectors**
-
-  Those familiar with `document.querySelector` may be expecting the ability to
-  pass "wildcards" or "star syntax" to be able to select multiple schema
-  elements. This implies multiple ways of _selecting_ a schema node.
-
-  For example, `User.address` and `User.a*` might both resolve to `User.address`.
-  But `User.a*` could also ambiguously refer to `User.age`.
-
-  It's unclear how wildcard expansion would work with respect to field
-  arguments\*, potentially violating the requirement of this schema to _uniquely_
-  identify schema components.
-
-  \* _(e.g. does `Query.getUser` also select all arguments on the `getUser`
-  field? Who knows! A discussion for another time.)_
-
-  A more general purpose schema selector language could be built on top of this
-  spec - however, we'll consider this **out of scope** for now.
-
-- **Nested field paths**
-
-  This spec does _not_ support selecting schema members with a path from a root
-  type (e.g. `Query`).
-
-  For example, given this schema
-
-  ```graphql
-  type User {
-    name: String
-    bestFriend: User
-  }
-
-  type Query {
-    userById(id: String): User
-  }
-  ```
-
-  The following are invalid schema coordinates:
-
-  - `Query.userById.name`
-  - `User.bestFriend.bestFriend.bestFriend.name`
-
-  This violates a non-goal that there be one, unambiguous way to write a
-  schema coordinate to refer to a schema member. Both examples can be
-  "simplified" to `User.name`, which _is_ a valid schema coordinate.
-
-  Should a use case for this arise in the future, a follow up RFC may investigate
-  how schema coordinates could work with "field paths" (e.g. `["query", "searchBusinesses", 1, "owner", "name"]`) to cover this.
-
-- **Directive applications**
-
-  This spec does _not_ support selecting applications of directive.
-
-  For example:
-
-  ```graphql
-  directive @private(scope: String!) on FIELD
-
-  type User {
-    name: String
-    reviewCount: Int
-    friends: [User]
-    email: String @private(scope: "loggedIn")
-  }
-  ```
-
-  You _can_ select the definition of the `private` directive and its arguments
-  (with `@private` and `@private(scope:)` respectively), but you cannot select the
-  application of the `@private` on `User.email`.
-
-  For the stated use cases of this RFC, it is more likely that consumers want to
-  select and track usage and changes to the definition of the custom directive
-  instead.
-
-  If we _did_ want to support this, a syntax such as `User.email@private[0]`
-  could work. (The indexing is necessary since [multiple applications of the same
-  directive is allowed][multiple-directives], and each is considered unique.)
-
-  [multiple-directives]: http://spec.graphql.org/draft/#sec-Directives-Are-Unique-Per-Location
-
-- **Union members**
-
-  This spec does not support selecting members inside a union definition.
-
-  For example:
-
-  ```graphql
-  type Breakfast {
-    eggCount: Int
-  }
-
-  type Lunch {
-    sandwichFilling: String
-  }
-
-  union Meal = Breakfast | Lunch
-  ```
-
-  You may select the `Meal` definition (as "`Meal`"), but you may **not** select
-  members on `Meal` (e.g. `Meal.Breakfast` or `Meal.Lunch`).
-
-  It is unclear what the use case for this would be, so we won't (yet?) support
-  this. In such cases, consumers may select type members directly (e.g. `Lunch`).
+- **Default Values**
+  The syntax being used in this proposal causes queries to error out in the case that
+  a `null` is found. As an alternative, some languages provide syntax (eg `??` for Swift)
+  that says "if a value would be `null` make it some other value instead". We are
+  not interested in covering that in this proposal.
+  
+## Implementation
+GraphQL.js: https://github.yelpcorp.com/wxue/graphql-js
