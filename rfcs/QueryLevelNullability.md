@@ -2,8 +2,8 @@
 
 **Proposed by:** 
 - [Liz Jakubowski](<social or github link here>) - Yelp iOS
-- [Alex Reilly](<social or github link here>) - Yelp iOS
 - [Sanae Rosen](<social or github link here>) - Yelp Android
+- [Alex Reilly](<social or github link here>) - Yelp iOS
 
 This RFC proposes creating a syntactical construct for client developers to 
 express "nullability" in their queries.
