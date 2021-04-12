@@ -8,11 +8,11 @@
 This RFC proposes creating a syntactical construct for client developers to 
 express "nullability" in their queries.
 
-## Defintions
+## Definitions
 
-Nullability: A concept that exists accross many programming lanugage (eg [Swift](https://developer.apple.com/documentation/swift/optional), [Kotlin](https://kotlinlang.org/docs/null-safety.html#nullable-types-and-non-null-types), [SQL](https://www.w3schools.com/sql/sql_notnull.asp))
+Nullability: A concept that exists across many programming languages (eg [Swift](https://developer.apple.com/documentation/swift/optional), [Kotlin](https://kotlinlang.org/docs/null-safety.html#nullable-types-and-non-null-types), [SQL](https://www.w3schools.com/sql/sql_notnull.asp))
 that is used to express when users can be certain that a value can or can never be `null` 
-(or the language equivilent). Nullability language constructs (eg `?` in Swift/Kotlin)
+(or the language equivalent). Nullability language constructs (eg `?` in Swift/Kotlin)
 have become popular due to their ability to solve ergonomic problems in languages
 such as those surrounding `NullPointerException` in Java.
 
@@ -70,7 +70,7 @@ query GetBusinessName($encid: String!) {
   }
 }
 ```
-Semantically the GraphQL `!` operator is nearly identical to it's counter-part in Swift (also represented by `!`) which is
+Semantically the GraphQL `!` operator is nearly identical to its counterpart in Swift (also represented by `!`) which is
 referred to as the "force unwrap operator". In Swift, for example, you can cast a string to an integer with `Int("5")` 
 but the string being cast may not be a valid number, so that statement will return `null` rather than an integer if the
 string cannot be turned into an integer. If you want to ensure that the statement does not return `null` you can instead 
