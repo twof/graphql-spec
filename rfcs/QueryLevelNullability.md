@@ -3,6 +3,7 @@
 **Proposed by:** 
 - [Liz Jakubowski](<social or github link here>) - Yelp iOS
 - [Sanae Rosen](<social or github link here>) - Yelp Android
+- [Mark Larah](https://github.com/magicmark) - Yelp Web
 - [Alex Reilly](<social or github link here>) - Yelp iOS
 
 This RFC proposes creating a syntactical construct for client developers to 
