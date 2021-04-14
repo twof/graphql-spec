@@ -41,7 +41,7 @@ It is often unclear how to handle partial results.
 In Yelp's GraphQL schema, almost all object fields are nullable except for those with ID type. 
 This adheres to what seems to be the [official best practice](https://graphql.org/learn/best-practices/#nullability).
 
-This poses a problem for the mobile clients that use Apollo's codegen feature. The codegen provides 
+This poses a problem for GraphQL clients that use codegen. The codegen provides 
 Swift/Kotlin types to represent queries used in the app. Nullable fields in the schema are represented
 as nullable properties on the resulting type, represented by `?` following the type name:
 ```graphql
