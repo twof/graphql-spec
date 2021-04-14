@@ -12,18 +12,19 @@ This RFC proposes a syntactical construct for GraphQL clients to express the **n
 ## Definitions
 
 Nullability: A concept that exists across many programming languages (eg [Swift](https://developer.apple.com/documentation/swift/optional), [Kotlin](https://kotlinlang.org/docs/null-safety.html#nullable-types-and-non-null-types), [SQL](https://www.w3schools.com/sql/sql_notnull.asp))
-that is used to express when users can be certain that a value can or can never be `null` 
+that is used to express when developers can be certain that a value can or can never be `null` 
 (or the language equivalent). Nullability language constructs (eg `?` in Swift/Kotlin)
 have become popular due to their ability to solve ergonomic problems in languages
 such as those surrounding `NullPointerException` in Java.
 
 Codegen: Short for Code Generation, tools that exist for working with GraphQL which accept a schema and a set of documents as
 input, and output code in a language of choice that represents the data returned by those 
-operations. GraphQL codegen tools exist for many platforms. As an example, [here's some info about Apollo's offerings](https://github.com/apollographql/apollo-tooling#code-generation).
+operations. GraphQL codegen tools exist for many platforms. As an example, [here's some info about Apollo's offerings](https://github.com/apollographql/apollo-tooling#code-generation) and [GraphQL Codegen by The Guild](https://www.graphql-code-generator.com/).
 
 ## 📜 Problem Statement
 
-GraphQL is a "nullable by default" language meaning that all properties are allowed to be `null`.
+According to [best practice](https://graphql.org/learn/best-practices/#nullability) GraphQL is
+a "nullable by default" language meaning that all properties are allowed to be `null`.
 This is in contrast to the two modern languages used on mobile clients, Swift and Kotlin,
 which are both non-null by default. In Swift and Kotlin, unless developers otherwise
 specify it, properties cannot be `null`.
@@ -32,16 +33,7 @@ This mismatch creates some dissonance for developers who are currently forced to
 problems that commonly surround nullablility. This makes large numbers of null fields tedious and
 time-consuming to work with.
 
-It is often unclear how to handle partial results.
-- What elements are essential to having an adequate user experience? How many elements can fail before you 
-  should just show an error message instead?
-- When any combination of elements can fail, it is very hard to anticipate all edge cases and how the app 
-  might look and work, including transitions to other screens.
-
-In Yelp's GraphQL schema, almost all object fields are nullable except for those with ID type. 
-This adheres to what seems to be the [official best practice](https://graphql.org/learn/best-practices/#nullability).
-
-This poses a problem for GraphQL clients that use codegen. The codegen provides 
+This poses a problem for the clients that use codegened models. For example Apollo codegen provides 
 Swift/Kotlin types to represent queries used in the app. Nullable fields in the schema are represented
 as nullable properties on the resulting type, represented by `?` following the type name:
 ```graphql
@@ -56,10 +48,9 @@ struct GetBusinessNameQuery.Data.Business {
   let name: String?
 }
 ```
-In many cases, the client should error if the business `name` is null. If codegen were out of the picture,
-we would be able to throw an error at JSON response-parsing time if it's missing, or otherwise instantiate
-a hand-written business object with a non-nullable `name` property. From that point on, all feature code
-can happily assume that it has a non-null business name to work with.
+In many cases, the client should error if the business `name` is null. While the schema can have the nullable
+fields for valid reasons (such as federation), the client wants to decide if it accepts a null value for]
+the result to simplify the client-side logic.  
 
 ## 🧑‍💻 Proposed syntax
 
@@ -80,8 +71,7 @@ write `Int("5")!`. If you do that, an exception will be thrown if the statement 
 In GraphQL, the `!` operator will act similarly. In the case that `name` does not exist, the query will return an
 error to the client rather than any data.
 
-On web where codegen is not used, the client no longer needs to handle the case where expected fields are missing.
-On mobile platforms where codegen is used, clients have full control over the nullability of the properties on the
+On platforms where codegen is used, clients have full control over the nullability of the properties on the
 generated types. Since nullability is expressed in the query rather than the schema, it's flexible enough to accommodate
 various use-cases (e.g., where the business `name` _is_ allowed to be nullable).
 
@@ -98,6 +88,12 @@ There are times where a field can be `null`, but a feature that queries for the 
 if it is `null`. For example if you are trying to render an information page for a movie, you won't
 be able to do that if the name field of the movie is missing. In that case it would be preferable
 to fail as early as possible.
+
+It is often unclear how to handle partial results.
+- What elements are essential to having an adequate developer experience? How many elements can fail before you 
+  should just show an error message instead?
+- When any combination of elements can fail, it is very hard to anticipate all edge cases and how the UI 
+  might look and work, including transitions to other screens.
 
 ### ✨ Examples
 
@@ -136,14 +132,13 @@ query {
 
 ## 🗳️ Alternatives considered
 
-### Make Schema Fields Non-Nullable Instead
-Discussion on [this topic can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
-// We definitely want to flesh this out
-
-### Use a directive such as `@non-null` instead
+### Use a directive such as `@nonNull` instead
 This is the alternative being used at some of the companies represented in this proposal for the time being.
 However this feels like a common enough need to call for a language feature. A single language feature
 rather than using directives as a workaround would enable more unified public tooling around GraphQL.
+
+### Make Schema Fields Non-Nullable Instead
+Discussion on [this topic can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
 
 ### Write wrapper types that null-check fields
 This is the alternative being used at some of the companies represented in this proposal for the time being.
@@ -163,7 +158,6 @@ query! {
   }
 }
 ```
-// TODO: This was rejected when it was proposed. Looking for more info as to why
 
 ## 🙅 Syntax Non-goals
 
