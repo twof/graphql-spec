@@ -1,7 +1,7 @@
 # RFC: Query Level Nullability 
 
 **Proposed by:** 
-- [Liz Jakubowski](<social or github link here>) - Yelp iOS
+- [Liz Jakubowski](https://github.com/lizjakubowski) - Yelp iOS
 - [Sanae Rosen](<social or github link here>) - Yelp Android
 - [Mark Larah](https://github.com/magicmark) - Yelp Web
 - [Alex Reilly](<social or github link here>) - Yelp iOS
