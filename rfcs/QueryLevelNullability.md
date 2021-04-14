@@ -28,9 +28,9 @@ This is in contrast to the two modern languages used on mobile clients, Swift an
 which are both non-null by default. In Swift and Kotlin, unless developers otherwise
 specify it, properties cannot be `null`.
 
-This mismatch creates some dissonance for developers who are currently forced into dealing the
-problems that commonly surround nullablility in codebases that otherwise do not need to deal with
-those problems. This makes large numbers of nulls tedious and time-consuming to handle.
+This mismatch creates some dissonance for developers who are currently forced to deal with
+problems that commonly surround nullablility. This makes large numbers of null fields tedious and
+time-consuming to work with.
 
 It is often unclear how to handle partial results.
 - What elements are essential to having an adequate user experience? How many elements can fail before you 
