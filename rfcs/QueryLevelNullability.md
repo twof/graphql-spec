@@ -170,4 +170,4 @@ This syntax consciously does not cover the following use cases:
   not interested in covering that in this proposal.
   
 ## Implementation
-GraphQL.js: https://github.yelpcorp.com/wxue/graphql-js
+GraphQL.js: https://github.com/graphql/graphql-js/pull/2824
