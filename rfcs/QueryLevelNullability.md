@@ -7,8 +7,7 @@
 - [Alex Reilly](<social or github link here>) - Yelp iOS
 - [Wei Xue](<social or github link here>) - Yelp iOS
 
-This RFC proposes creating a syntactical construct for client developers to 
-express "nullability" in their queries.
+This RFC proposes a syntactical construct for GraphQL clients to express the **nullability** of schema fields requested in a query.
 
 ## Definitions
 
