@@ -105,7 +105,7 @@ to fail as early as possible.
 ```graphql
 query GetBusinessName($encid: String!) {
   business(encid: $encid) {
-    name!  <-- this!
+    name!
   }
 }
 ```
