@@ -17,9 +17,9 @@ that is used to express when users can be certain that a value can or can never 
 have become popular due to their ability to solve ergonomic problems in languages
 such as those surrounding `NullPointerException` in Java.
 
-Codegen: Short for Code Generation, tools that exist for working with GraphQL which take queries and schemas as
-input and output code in a language of choice that represents data that will result from those 
-queries. Codegen tools exist for many platforms. As an example, [here's some info about Apollo's offerings.](https://github.com/apollographql/apollo-tooling#code-generation)
+Codegen: Short for Code Generation, tools that exist for working with GraphQL which accept a schema and a set of documents as
+input, and output code in a language of choice that represents the data returned by those 
+operations. GraphQL codegen tools exist for many platforms. As an example, [here's some info about Apollo's offerings](https://github.com/apollographql/apollo-tooling#code-generation).
 
 ## 📜 Problem Statement
 
