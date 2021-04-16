@@ -69,7 +69,7 @@ GraphQL on the client. GraphQL codegen tooling exists for many platforms:
   The query can then be fetched, and the resulting data handled, as follows:
   ```swift
   GraphQL.fetch(query: GetBusinessNameQuery(id: "foo"), completion: { result in
-    guard case let .success(gqlResult) = result, let business = gqlResult.data.business else { return }
+    guard case let .success(gqlResult) = result, let business = gqlResult.data?.business else { return }
 
     // Often, the client needs to provide a default value in case `name` is `null`.
     print(business?.name ?? "null")
@@ -92,15 +92,15 @@ complex that a new model type which encapsulates the `null` handling is written 
 
 While the schema can have nullable fields for valid reasons (such as federation), in some cases the client wants to decide
 if it accepts a `null` value for the result to simplify the client-side logic. In addition, a syntax for this concept
-would allow codegen tooling to generate model types that are more ergonomic to work with, since the fields would have the
-desired nullability.
+would allow codegen tooling to generate model types that are more ergonomic to work with, since the since the model
+type's properties would have the desired nullability
 
 ## 🧑‍💻 Proposed syntax
 
-The client can express that a schema field is required using the `!` syntax:
+The client can express that a schema field is required using the `!` syntax in the query definition:
 ```graphql
-query GetBusinessName($encid: String!) {
-  business(encid: $encid) {
+query GetBusinessName($id: String!) {
+  business(id: $id) {
     name!
   }
 }
@@ -157,8 +157,8 @@ Implementing these decisions significantly complicates the client-side logic for
 
 #### Non-nullable field
 ```graphql
-query GetBusinessName($encid: String!) {
-  business(encid: $encid) {
+query GetBusinessName($id: String!) {
+  business(id: $id) {
     name!
   }
 }
@@ -166,10 +166,14 @@ query GetBusinessName($encid: String!) {
 would codegen to the following type on iOS.
 ```swift
 struct GetBusinessNameQuery {
+  let id: String
+
   struct Data {
+    let business: Business?
+
     struct Business {
       /// Lack of `?` indicates that `name` will never be `null`
-      let name: String
+      let name: String?
     }
   }
 }
