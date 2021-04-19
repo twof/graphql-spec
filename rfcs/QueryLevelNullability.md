@@ -178,7 +178,7 @@ PRs will be linked here.
 - Spec Changes
 - Official Libraries
   - GraphQL.js: https://github.com/graphql/graphql-js/pull/2824
-- 3rd Party Libararies
+- 3rd Party Libraries
   - [Apollo Android](https://github.com/apollographql/apollo-android)
     - Code Gen
     - Cache
