@@ -173,7 +173,7 @@ struct GetBusinessNameQuery {
 
     struct Business {
       /// Lack of `?` indicates that `name` will never be `null`
-      let name: String?
+      let name: String
     }
   }
 }
@@ -200,15 +200,18 @@ query GetBusinessReviews {
 
 ## 🗳️ Alternatives considered
 
-### An official `@nonNull` directive
+### A `@nonNull` official directive
 
 This solution offers the same benefits as the proposed solution. Since many GraphQL codegen tools already support the `@skip` and `@include` directives, this solution likely has a faster turnaround.
 
-### Use a custom `@nonNull` directive
+### A `@nonNull` custom directive
 
 This is an alternative being used at some of the companies represented in this proposal for the time being.
 
-While this solution simplifies some client-side logic, it does not meaningfully improve the developer experience for clients that rely on codegen, since codegen types typically cannot be customized based on a custom directive.
+While this solution simplifies some client-side logic, it does not meaningfully improve the developer experience for clients.
+
+* The cache implementations of GraphQL client libraries also need to understand the custom directive to behave correctly. Currently, when a client library caches a null field based on an operation without a directive, it will return the null field for another operation with this directive.
+* For clients that rely on codegen, codegen types typically cannot be customized based on a custom directive. See https://github.com/dotansimha/graphql-code-generator/discussions/5676 for an example. As a result, the optional codegen properties still need to be unwrapped in the code.
 
 This feels like a common enough need to call for a language feature. A single language feature would enable more unified public tooling around GraphQL.
 
