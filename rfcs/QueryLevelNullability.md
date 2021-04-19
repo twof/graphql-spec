@@ -97,7 +97,7 @@ type's properties would have the desired nullability.
 
 ## 🧑‍💻 Proposed syntax
 
-The client can express that a schema field is required using the `!` syntax in the query definition:
+The client can express that a schema field is required by using the `!` syntax in the query definition:
 ```graphql
 query GetBusinessName($id: String!) {
   business(id: $id) {
