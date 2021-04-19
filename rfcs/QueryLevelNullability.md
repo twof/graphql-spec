@@ -6,6 +6,7 @@
 - [Mark Larah](https://github.com/magicmark) - Yelp Web
 - [Alex Reilly](<social or github link here>) - Yelp iOS
 - [Wei Xue](<social or github link here>) - Yelp iOS
+- [Young Min Kim](https://github.com/aprilrd) - Netflix UI
 
 This RFC proposes a syntactical construct for GraphQL clients to express the **nullability** of schema fields requested in a query.
 
