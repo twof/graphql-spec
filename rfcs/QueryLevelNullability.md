@@ -185,4 +185,7 @@ PRs will be linked here.
   - [Apollo iOS](https://github.com/apollographql/apollo-ios)
     - Code Gen
     - Cache
+  - [Apollo JS](https://github.com/apollographql/apollo-client)
+    - Code Gen
+    - Cache
   - [GraphQL Code Generator by The Guild](https://github.com/dotansimha/graphql-code-generator)
