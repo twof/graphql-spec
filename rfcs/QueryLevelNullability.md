@@ -248,5 +248,22 @@ This syntax consciously does not cover the following use cases:
   that says "if a value would be `null` make it some other value instead". We are
   not interested in covering that in this proposal.
   
-## Implementation
-GraphQL.js: https://github.com/graphql/graphql-js/pull/2824
+## Work Items
+Patches that will need to be made if this proposal is accepted. The 
+[RFC proposal process](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md)
+requires that a proof of concept is implemented in a GraphQL library. As work items are completed,
+PRs will be linked here.
+- Spec Changes
+- Official Libraries
+  - GraphQL.js: https://github.com/graphql/graphql-js/pull/2824
+- 3rd Party Libraries
+  - [Apollo Android](https://github.com/apollographql/apollo-android)
+    - Code Gen
+    - Cache
+  - [Apollo iOS](https://github.com/apollographql/apollo-ios)
+    - Code Gen
+    - Cache
+  - [Apollo JS](https://github.com/apollographql/apollo-client)
+    - Code Gen
+    - Cache
+  - [GraphQL Code Generator by The Guild](https://github.com/dotansimha/graphql-code-generator)
