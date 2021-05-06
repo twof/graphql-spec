@@ -250,7 +250,7 @@ For example, in the following GraphQL schema:
     }
 ```
 
-If we intend to always have a title and rating for a Business, it may be tempting to mark these fields as Non-Null:
+If we intend to always have a name and isStarred for a Business, it may be tempting to mark these fields as Non-Null:
 
 ```graphql
     type Business {
@@ -268,7 +268,7 @@ When a non-nullable field results in null, the GraphQL server will recursively s
 {
   "data": {
     "business": {
-      "name": "The French Laundry"
+      "name": "The French Laundry",
       "isStarred": false
     }
   }
