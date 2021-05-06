@@ -250,7 +250,7 @@ For example, in the following GraphQL schema:
     }
 ```
 
-If we intend to always have a title and rating for a Movie, it may be tempting to mark these fields as Non-Null:
+If we intend to always have a title and rating for a Business, it may be tempting to mark these fields as Non-Null:
 
 ```graphql
     type Business {
