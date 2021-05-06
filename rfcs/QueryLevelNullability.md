@@ -6,6 +6,7 @@
 - [Liz Jakubowski](https://github.com/lizjakubowski) - Yelp iOS
 - [Mark Larah](https://github.com/magicmark) - Yelp Web
 - [Sanae Rosen](<social or github link here>) - Yelp Android
+- [Stephen Spalding](https://github.com/fotoetienne) - Netflix GraphQL Server Infrastructure
 - [Wei Xue](<social or github link here>) - Yelp iOS
 - [Young Min Kim](https://github.com/aprilrd) - Netflix UI
 
@@ -96,7 +97,29 @@ if it accepts a `null` value for the result to simplify the client-side logic. I
 would allow codegen tooling to generate model types that are more ergonomic to work with, since the model
 type's properties would have the desired nullability.
 
-## 🧑‍💻 Proposed syntax
+
+## 🧑‍💻 Proposed Solution
+
+A client specified Non-Null designator.
+
+## 🎬 Behavior
+
+The proposed query-side Non-Null designator would have identical semantics as the current 
+SDL-defined [Non-Null](https://spec.graphql.org/June2018/#sec-Errors-and-Non-Nullability). Specifically:
+
+  - If the result of resolving a field is null (either because the function to resolve the field returned null
+or because an error occurred), and that field is of a Non-Null type,
+**or the operation specifies this field as Non-Null**,
+then a field error is thrown. The error must be added to the "errors" list in the response.
+
+  - Since Non-Null type fields cannot be null, field errors are propagated to be handled by the parent field. 
+If the parent field may be null then it resolves to null, otherwise the field error
+is further propagated to its parent field.
+
+  - If all fields from the root of the request to the source of the field error return Non-Null types or are 
+    specified as Non-Null in the operation, then the "data" entry in the response should be null.
+
+## ✏️ Proposed syntax
 
 The client can express that a schema field is required by using the `!` syntax in the query definition:
 ```graphql
@@ -114,8 +137,7 @@ number, so that statement will evaluate to `null` rather than an integer if the 
 you want to ensure that the statement does not return `null` you can instead write `Int("5")!`. If you do that, an
 exception will be thrown if the statement would evaluate to `null`.
 
-In GraphQL, the `!` operator will act similarly. In the case that `name` does not exist, the query will return an error
-to the client rather than any data.
+In GraphQL, the `!` operator will act similarly.
 
 ### `!`
 
@@ -123,7 +145,7 @@ We have chosen `!` because `!` is already being used in the GraphQL spec to indi
 Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which both use similar syntax to indicate
 "throw an exception if this value is `null`".
 
-### Use cases
+## Use cases
 
 #### When a field is necessary to the function of the client
 
@@ -217,7 +239,64 @@ While this solution simplifies some client-side logic, it does not meaningfully 
 This feels like a common enough need to call for a language feature. A single language feature would enable more unified public tooling around GraphQL.
 
 ### Make Schema Fields Non-Nullable Instead
-Discussion on [this topic can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
+
+It is intuitive that one should simply mark fields that are not intended to be null as non-null in the schema.
+For example, in the following GraphQL schema:
+
+```graphql
+    type Business {
+      name: String
+      isStarred: Boolean
+    }
+```
+
+If we intend to always have a name and isStarred for a Business, it may be tempting to mark these fields as Non-Null:
+
+```graphql
+    type Business {
+      name: String!
+      isStarred: Boolean!
+    }
+```
+
+Marking Schema fields as non-null can introduce particular problems in a distributed environment where there is a possibility
+of partial failure regardless of whether the field is intended to have null as a valid state.
+
+When a non-nullable field results in null, the GraphQL server will recursively step through the field’s ancestors to find the next nullable field. In the following GraphQL response:
+
+```json
+{
+  "data": {
+    "business": {
+      "name": "The French Laundry",
+      "isStarred": false
+    }
+  }
+}
+```
+
+If isStarred is non-nullable but returns null and business is nullable, the result will be:
+
+```json
+{
+  "data": {
+    "business": null
+  }
+}
+```
+
+Even if name returns valid results, the response would no longer provide this data. If business is non-nullable, the response will be:
+```json
+{
+  "data": null
+}
+```
+
+In the case that the service storing user stars is unavailable, the UI may want to go ahead and render the component 
+without a star (effectively defaulting isStarred to false). Non-Null in the schema makes it impossible for the client 
+to receive partial results from the server, and thus potentially forces the entire component to fail rendering.
+
+More discussion on [when to use non-null can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
 
 ### Write wrapper types that null-check fields
 This is the alternative being used at some of the companies represented in this proposal for the time being.
