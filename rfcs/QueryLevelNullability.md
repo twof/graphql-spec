@@ -8,6 +8,7 @@
 - [Sanae Rosen](<social or github link here>) - Yelp Android
 - [Wei Xue](<social or github link here>) - Yelp iOS
 - [Young Min Kim](https://github.com/aprilrd) - Netflix UI
+- [Stephen Spalding](https://github.com/fotoetienne) - Netflix GraphQL Server Infrastructure
 
 This RFC proposes a syntactical construct for GraphQL clients to express the **nullability** of schema fields requested
 in a query.
@@ -96,7 +97,29 @@ if it accepts a `null` value for the result to simplify the client-side logic. I
 would allow codegen tooling to generate model types that are more ergonomic to work with, since the since the model
 type's properties would have the desired nullability.
 
-## 🧑‍💻 Proposed syntax
+
+## 🧑‍💻 Proposed Solution
+
+A client specified Non-Null designator.
+
+## 🎬 Behavior
+
+The proposed query-side Non-Null designator would have identical semantics as the current 
+SDL-defined [Non-Null](https://spec.graphql.org/June2018/#sec-Errors-and-Non-Nullability). Specifically:
+
+  - If the result of resolving a field is null (either because the function to resolve the field returned null
+or because an error occurred), and that field is of a Non-Null type,
+**or the operation specifies this field as Non-Null**,
+then a field error is thrown. The error must be added to the "errors" list in the response.
+
+  - Since Non-Null type fields cannot be null, field errors are propagated to be handled by the parent field. 
+If the parent field may be null then it resolves to null, otherwise the field error
+is further propagated to its parent field.
+
+  - If all fields from the root of the request to the source of the field error return Non-Null types or are 
+    specified as Non-Null in the operation, then the "data" entry in the response should be null.
+
+## ✏️ Proposed syntax
 
 The client can express that a schema field is required by using the `!` syntax in the query definition:
 ```graphql
@@ -114,8 +137,7 @@ number, so that statement will evaluate to `null` rather than an integer if the 
 you want to ensure that the statement does not return `null` you can instead write `Int("5")!`. If you do that, an
 exception will be thrown if the statement would evaluate to `null`.
 
-In GraphQL, the `!` operator will act similarly. In the case that `name` does not exist, the query will return an error
-to the client rather than any data.
+In GraphQL, the `!` operator will act similarly.
 
 ### `!`
 
@@ -123,7 +145,7 @@ We have chosen `!` because `!` is already being used in the GraphQL spec to indi
 Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which both use similar syntax to indicate
 "throw an exception if this value is `null`".
 
-### Use cases
+## Use cases
 
 #### When a field is necessary to the function of the client
 
