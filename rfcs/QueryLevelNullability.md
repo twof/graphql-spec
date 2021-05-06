@@ -93,7 +93,7 @@ complex that a new model type which encapsulates the `null` handling is written 
 
 While the schema can have nullable fields for valid reasons (such as federation), in some cases the client wants to decide
 if it accepts a `null` value for the result to simplify the client-side logic. In addition, syntax for this concept
-would allow codegen tooling to generate model types that are more ergonomic to work with, since the since the model
+would allow codegen tooling to generate model types that are more ergonomic to work with, since the model
 type's properties would have the desired nullability.
 
 ## 🧑‍💻 Proposed syntax
