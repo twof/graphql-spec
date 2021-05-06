@@ -239,7 +239,64 @@ While this solution simplifies some client-side logic, it does not meaningfully 
 This feels like a common enough need to call for a language feature. A single language feature would enable more unified public tooling around GraphQL.
 
 ### Make Schema Fields Non-Nullable Instead
-Discussion on [this topic can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
+
+It is intuitive that one should simply mark fields that are not intended to be null as non-null in the schema.
+For example, in the following GraphQL schema:
+
+```graphql
+    type Business {
+      name: String
+      isStarred: Boolean
+    }
+```
+
+If we intend to always have a title and rating for a Movie, it may be tempting to mark these fields as Non-Null:
+
+```graphql
+    type Business {
+      name: String!
+      isStarred: Boolean!
+    }
+```
+
+Marking Schema fields as non-null can have particular problems in a distributed environment where there is a possibility
+of partial failure regardless of whether the field is intended to have null as a valid state.
+
+When a non-nullable field results in null, the GraphQL server will recursively step through the field’s ancestors to find the next nullable field. In the following GraphQL response:
+
+```json
+{
+  "data": {
+    "business": {
+      "name": "The French Laundry"
+      "isStarred": false
+    }
+  }
+}
+```
+
+If isStarred is non-nullable but returns null and business is nullable, the result will be:
+
+```json
+{
+  "data": {
+    "business": null
+  }
+}
+```
+
+Even if name returns valid results, the response would no longer provide this data. If business is non-nullable, the response will be:
+```json
+{
+  "data": null
+}
+```
+
+In the case that the service storing user stars is unavailable, the UI may want to go ahead and render the component 
+without a star (effectively defaulting isStarred to false). Non-Null in the schema makes it impossible for the client 
+to receive partial results from the server, and thus potentially forces the entire component to fail rendering.
+
+More discussion on [when to use non-null can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
 
 ### Write wrapper types that null-check fields
 This is the alternative being used at some of the companies represented in this proposal for the time being.
