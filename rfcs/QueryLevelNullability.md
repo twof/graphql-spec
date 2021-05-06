@@ -259,7 +259,7 @@ If we intend to always have a title and rating for a Business, it may be temptin
     }
 ```
 
-Marking Schema fields as non-null can have particular problems in a distributed environment where there is a possibility
+Marking Schema fields as non-null can introduce particular problems in a distributed environment where there is a possibility
 of partial failure regardless of whether the field is intended to have null as a valid state.
 
 When a non-nullable field results in null, the GraphQL server will recursively step through the field’s ancestors to find the next nullable field. In the following GraphQL response:
