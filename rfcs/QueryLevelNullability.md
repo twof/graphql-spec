@@ -298,6 +298,10 @@ to receive partial results from the server, and thus potentially forces the enti
 
 More discussion on [when to use non-null can be found here](https://medium.com/@calebmer/when-to-use-graphql-non-null-fields-4059337f6fc8)
 
+Additionally, marking a field non-null is not possible in every use case. For example, when a developer is using a 3rd-party API such as
+[Github's GraphQL API](https://docs.github.com/en/graphql) they won't be able to alter Github's schema, but they may still
+want to have certain fields be non-nullable in their application.
+
 ### Write wrapper types that null-check fields
 This is the alternative being used at some of the companies represented in this proposal for the time being.
 It's quite labor intensive and the work is quite rote. It more or less undermines the purpose of
