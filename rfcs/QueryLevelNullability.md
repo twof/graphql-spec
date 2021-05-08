@@ -1,4 +1,4 @@
-# RFC: Query Level Nullability 
+# RFC: Operation Level Nullability 
 
 **Proposed by:**
 
@@ -10,8 +10,7 @@
 - [Wei Xue](<social or github link here>) - Yelp iOS
 - [Young Min Kim](https://github.com/aprilrd) - Netflix UI
 
-This RFC proposes a syntactical construct for GraphQL clients to express the **nullability** of schema fields requested
-in a query.
+This RFC proposes a syntactical construct for GraphQL clients to express that fields in an operation are **non-null**.
 
 ## Definitions
 
@@ -100,7 +99,7 @@ type's properties would have the desired nullability.
 
 ## 🧑‍💻 Proposed Solution
 
-A client specified Non-Null designator.
+A client specified non-null designator.
 
 ## 🎬 Behavior
 
@@ -129,15 +128,6 @@ query GetBusinessName($id: String!) {
   }
 }
 ```
-Semantically the GraphQL `!` operator is nearly identical to its counterpart in Swift (also represented by `!`) which is
-referred to as the "force unwrap operator".
-
-In Swift, for example, you can cast a string to an integer with `Int("5")` but the string being cast may not be a valid
-number, so that statement will evaluate to `null` rather than an integer if the string cannot be cast to an integer. If
-you want to ensure that the statement does not return `null` you can instead write `Int("5")!`. If you do that, an
-exception will be thrown if the statement would evaluate to `null`.
-
-In GraphQL, the `!` operator will act similarly.
 
 ### `!`
 
