@@ -99,7 +99,7 @@ type's properties would have the desired nullability.
 
 ## 🧑‍💻 Proposed Solution
 
-A client specified non-null designator.
+A client specified Non-Null designator.
 
 ## 🎬 Behavior
 
