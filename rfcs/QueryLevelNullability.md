@@ -1,4 +1,4 @@
-# RFC: Query Level Nullability 
+# RFC: Operation Level Nullability 
 
 **Proposed by:**
 
@@ -10,8 +10,7 @@
 - [Wei Xue](<social or github link here>) - Yelp iOS
 - [Young Min Kim](https://github.com/aprilrd) - Netflix UI
 
-This RFC proposes a syntactical construct for GraphQL clients to express the **nullability** of schema fields requested
-in a query.
+This RFC proposes a syntactical construct for GraphQL clients to express that fields in an operation are **non-null**.
 
 ## Definitions
 
@@ -31,7 +30,7 @@ GraphQL on the client. GraphQL codegen tooling exists for many platforms:
   GraphQL codegen tools typically accept a schema and a set of documents as input, and output code in a language of
   choice that represents the data returned by those operations.
 
-  For example, the Apollo iOS codegen tool generates Swift types to represent each query document, as well as model types
+  For example, the Apollo iOS codegen tool generates Swift types to represent each operation document, as well as model types
   representing the data returned from those queries. Notably, a nullable field in the schema becomes an `Optional`
   property on the generated Swift model type, represented by `?` following the type name.
 
@@ -121,7 +120,7 @@ is further propagated to its parent field.
 
 ## ✏️ Proposed syntax
 
-The client can express that a schema field is required by using the `!` syntax in the query definition:
+The client can express that a schema field is required by using the `!` syntax in the operation definition:
 ```graphql
 query GetBusinessName($id: String!) {
   business(id: $id) {
@@ -129,15 +128,6 @@ query GetBusinessName($id: String!) {
   }
 }
 ```
-Semantically the GraphQL `!` operator is nearly identical to its counterpart in Swift (also represented by `!`) which is
-referred to as the "force unwrap operator".
-
-In Swift, for example, you can cast a string to an integer with `Int("5")` but the string being cast may not be a valid
-number, so that statement will evaluate to `null` rather than an integer if the string cannot be cast to an integer. If
-you want to ensure that the statement does not return `null` you can instead write `Int("5")!`. If you do that, an
-exception will be thrown if the statement would evaluate to `null`.
-
-In GraphQL, the `!` operator will act similarly.
 
 ### `!`
 
@@ -149,7 +139,7 @@ Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which bo
 
 #### When a field is necessary to the function of the client
 
-Expressing nullability in the query, as opposed to the schema, offers the client more flexibility and control over
+Expressing nullability in the operation, as opposed to the schema, offers the client more flexibility and control over
 whether or not an error is thrown.
 
 There are cases where a field is `nullable`, but a feature that fetches the field will not function if it is `null`.
