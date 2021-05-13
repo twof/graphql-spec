@@ -7,7 +7,7 @@
 - [Mark Larah](https://github.com/magicmark) - Yelp Web
 - [Sanae Rosen](<social or github link here>) - Yelp Android
 - [Stephen Spalding](https://github.com/fotoetienne) - Netflix GraphQL Server Infrastructure
-- [Wei Xue](<social or github link here>) - Yelp iOS
+- [Wei Xue](https://github.com/xuewei8910) - Yelp iOS
 - [Young Min Kim](https://github.com/aprilrd) - Netflix UI
 
 This RFC proposes a syntactical construct for GraphQL clients to express that fields in an operation are **non-null**.
