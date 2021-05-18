@@ -93,7 +93,7 @@ This forces the SDL author to decide for which fields partial failure is accepta
 may not be in the best position to decide whether partial failure is acceptable for a given canvas.
 
 While the schema can have nullable fields for valid reasons (such as federation), in some cases the client wants 
-to decideif it accepts a `null` value for the result to simplify the client-side logic.
+to decide if it accepts a `null` value for the result to simplify the client-side logic.
 
 We need another way to make working with GraphQL more ergonomic for client developers.
 
