@@ -101,7 +101,7 @@ A client specified Non-Null designator.
 
 ## 🎬 Behavior
 
-The proposed query-side Non-Null designator would have identical semantics to the current 
+The proposed client-controlled Non-Null designator would have identical semantics to the current 
 SDL-defined [Non-Null](https://spec.graphql.org/June2018/#sec-Errors-and-Non-Nullability). Specifically:
 
   - If the result of resolving a field is null (either because the function to resolve the field returned null
