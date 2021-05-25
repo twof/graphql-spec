@@ -95,9 +95,6 @@ may not be in the best position to decide whether partial failure is acceptable 
 While the schema can have nullable fields for valid reasons (such as federation), in some cases the client wants 
 to decide if it accepts a `null` value for the result to simplify the client-side logic.
 
-We need another way to make working with GraphQL more ergonomic for client developers.
-
-
 ## 🧑‍💻 Proposed Solution
 
 A client specified Non-Null designator.
@@ -133,9 +130,7 @@ query GetBusinessName($id: String!) {
 ### `!`
 
 We have chosen `!` because `!` is already being used in the GraphQL spec to indicate that a field in the schema
-is non-nullable. Incidentally the same precedent exists in Swift (`!`) and Kotlin (`!!`) which both use similar
-syntax to indicate "throw an exception if this value is `null`", so the syntax may even feel familiar to 
-non-GraphQL developers.
+is non-nullable, so it will feel familiar to GraphQL developers.
 
 ## Use cases
 
