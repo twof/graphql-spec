@@ -97,7 +97,7 @@ to decide if it accepts a `null` value for the result to simplify the client-sid
 
 ## 🧑‍💻 Proposed Solution
 
-A client specified Non-Null designator.
+A client-controlled Non-Null designator.
 
 ## 🎬 Behavior
 
