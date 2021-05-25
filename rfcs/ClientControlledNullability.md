@@ -134,6 +134,24 @@ is non-nullable, so it will feel familiar to GraphQL developers.
 
 ## Use cases
 
+#### When a field is necessary to the function of the client
+
+Expressing nullability in the operation, as opposed to the schema, offers the client more flexibility and control
+over whether or not an error is thrown.
+
+There are cases where a field is `nullable`, but a feature that fetches the field will not function if it is `null`.
+For example if you are trying to render an information page for a movie, you won't be able to do that if the name field
+of the movie is missing. In that case it would be preferable to fail as early as possible.
+
+According to the official GraphQL best practice, this field should be non-nullable:
+
+> When designing a GraphQL schema, it's important to keep in mind all the problems that could go wrong and if "null" is
+> an appropriate value for a failed field. Typically it is, but occasionally, it's not. In those cases, use non-null
+> types to make that guarantee.
+
+However, the same field may not be "vital" for every feature in the application that fetches it. Marking the field as
+non-null in the schema would result in those other features erroring unnecessarily whenever the field is "null".
+
 ## ✅ RFC Goals
 
 - Non-nullable syntax that is based off of syntax that developers will already be familiar with
