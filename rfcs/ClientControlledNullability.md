@@ -134,6 +134,37 @@ is non-nullable, so it will feel familiar to GraphQL developers.
 
 ## Use cases
 
+#### Improve the developer experience using GraphQL client codegen types
+
+Handling nullable values on the client is a major source of frustration for engineers, especially when using
+GraphQL codegen types in strongly-typed languages.
+
+The proposed nonNull designator would allow GraphQL clients to generate codegen types with more precise
+nullability requirements for a particular feature. For example, using a GraphQL client like Apollo GraphQL on 
+mobile, the following query
+```graphql
+query GetBusinessName($id: String!) {
+  business(id: $id) {
+    name!
+  }
+}
+```
+would codegen to the following type in Swift.
+```swift
+struct GetBusinessNameQuery {
+  let id: String
+  struct Data {
+    let business: Business?
+    struct Business {
+      /// Lack of `?` indicates that `name` will never be `null`
+      let name: String
+    }
+  }
+}
+```
+If a null business name is not acceptable for the feature executing this query, this codegen type is more 
+ergonomic to use since the developer does not need to unwrap the value each time it’s accessed.
+
 ## ✅ RFC Goals
 
 - Non-nullable syntax that is based off of syntax that developers will already be familiar with
