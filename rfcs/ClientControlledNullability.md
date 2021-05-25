@@ -134,6 +134,17 @@ is non-nullable, so it will feel familiar to GraphQL developers.
 
 ## Use cases
 
+#### When handling partial results
+
+It is often unclear how to handle partial results.
+
+- What elements are essential to having an adequate developer experience? How many elements can fail before you 
+  should just show an error message instead?
+- When any combination of elements can fail, it is very hard to anticipate all edge cases and how the UI 
+  might look and work, including transitions to other screens.
+
+Implementing these decisions significantly complicates the client-side logic for handling query results.
+
 ## ✅ RFC Goals
 
 - Non-nullable syntax that is based off of syntax that developers will already be familiar with
