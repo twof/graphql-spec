@@ -134,6 +134,12 @@ is non-nullable, so it will feel familiar to GraphQL developers.
 
 ## Use cases
 
+#### Greater developer control when using 3rd-party GraphQL APIs
+
+Additionally, marking a field non-null is not possible in every use case. For example, when a developer is using a 
+3rd-party API such as [Github's GraphQL API](https://docs.github.com/en/graphql) they won't be able to alter Github's
+schema, but they may still want to have certain fields be non-nullable in their application.
+
 ## ✅ RFC Goals
 
 - Non-nullable syntax that is based off of syntax that developers will already be familiar with
