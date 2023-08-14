@@ -48,7 +48,7 @@ Token ::
 - FloatValue
 - StringValue
 
-Punctuator :: one of ! ? $ & ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 Name ::
 
@@ -170,7 +170,6 @@ ListNullability : `[` Nullability? `]`
 NullabilityDesignator :
 
 - `!`
-- `?`
 
 Arguments[Const] : ( Argument[?Const]+ )
 

@@ -593,10 +593,10 @@ currentPropagationPath, ccnPropagationPairs):
 ## Accounting For Client Controlled Nullability Designators
 
 A field can have its nullability status set either in its service's schema, or a
-nullability designator (`!` or `?`) can override it for the duration of an
-execution. In order to determine a field's true nullability, both are taken into
-account and a final type is produced. A field marked with a `!` is called a
-"required field" and a field marked with a `?` is called an optional field.
+nullability designator (`!`) can override it for the duration of an execution.
+In order to determine a field's true nullability, both are taken into account
+and a final type is produced. A field marked with a `!` is called a "required
+field".
 
 ApplyRequiredStatus(type, requiredStatus):
 
@@ -865,9 +865,6 @@ Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
 to {null}, otherwise if it is a `Non-Null` type, the field error is further
 propagated to its parent field.
-
-If a required field resolves to {null}, propagation instead happens until an
-optional field is found.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
