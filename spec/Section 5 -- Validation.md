@@ -601,7 +601,7 @@ List fields can be marked with nullability designators that look like `[!]!` to
 indicate the nullability of the list's elements and the nullability of the list
 itself. For multi-dimensional lists, the designator would look something like
 `[[[!]]]!`. If any `ListNullability` operators are used then the number of
-dimensions of the designator are required be less than the number of dimensions
+dimensions of the designator are required to be less than or equal to the number of dimensions
 of the field's type. If the number of dimensions of the designator exceed the
 number of dimensions of the field's type, then a validation error is thrown.
 

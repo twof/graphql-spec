@@ -530,8 +530,7 @@ NullabilityDesignator :
 
 Fields can have their nullability designated with a `!` to indicate that a field
 should be `Non-Nullable`. These designators override the nullability set on a
-field by the schema for the operation where they're being used. In addition to
-being `Non-Nullable`, if a field marked with `!` resolves to `null`, it behaves
+field by the schema for the operation where they're being used. If a field marked with `!` resolves to `null`, it behaves
 as if the field had been `Non-Nullable` in the schema.
 
 In this example, we can indicate that a `user`'s `name` that could possibly be
@@ -602,8 +601,7 @@ Any field without a nullability designator will inherit its nullability from the
 schema definition. When designating nullability for list fields, query authors
 can either use the designator `!` to designate the nullability of the entire
 field, or they can use the list element nullability syntax displayed above. The
-number of dimensions indicated by list element nullability syntax is required to
-match the number of dimensions of the field. Anything else results in a query
+number of dimensions indicated by list element nullability syntax cannot exceed the number of dimensions of the field. Anything else results in a query
 validation error.
 
 ## Fragments

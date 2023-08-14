@@ -564,31 +564,18 @@ Each field requested in the grouped field set that is defined on the selected
 objectType will result in an entry in the response map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
-set or coercing a scalar value. `ccnPropagationPairs` is an unordered map where
-the keys are paths of required fields, and values are paths of the nearest
-optional parent to those required fields. `currentPropagationPath` starts as an
-empty path to indicate that `null` propagation should continue until it hits
-`data` if there is no optional field.
+set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
-currentPropagationPath, ccnPropagationPairs):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
-- Let {requiredStatus} be the required status of {field}.
-- Let {newPropagationPath} be {path} if {requiredStatus} is optional, otherwise
-  let {newPropagationPath} be {currentPropagationPath}
-- If {requiredStatus} is optional:
-  - Let {newPropagationPath} be {path}
-- If {requiredStatus} is required:
-  - Set {path} to {newPropagationPath} in {ccnPropagationPairs}
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Let {modifiedFieldType} be {ApplyRequiredStatus(fieldType, requiredStatus)}.
-- Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue,
-  variableValues, newPropagationPath, ccnPropagationPairs)}.
+- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
+  variableValues)}.
 
 ## Accounting For Client Controlled Nullability Designators
 
@@ -605,8 +592,6 @@ ApplyRequiredStatus(type, requiredStatus):
 - If {requiredStatus} is not a list:
   - If {requiredStatus} is required:
     - return a `Non-Null` version of {type}
-  - If {requiredStatus} is optional:
-    - return a nullable version of {type}
 - Create a {stack} initially containing {type}.
 - As long as the top of {stack} is a list:
   - Let {currentType} be the top item of {stack}.
@@ -623,13 +608,6 @@ ApplyRequiredStatus(type, requiredStatus):
       - Let {nullableType} be the nullable type of {nextType}.
       - Set {resultingType} to the Non-Nullable type of {nullableType}.
       - Continue onto the next node.
-    - For each {node} that is a OptionalDesignator:
-      - If {resultingType} exists:
-        - Set {resultingType} to the nullableType type of {resultingType}.
-        - Continue onto the next node.
-      - Pop the top of {stack} and let {nextType} be the result.
-      - Set {resultingType} to the nullable type of {resultingType}
-      - Continue onto the next node.
     - For each {node} that is a ListNullabilityDesignator:
       - Pop the top of {stack} and let {listType} be the result
       - If the nullable type of {listType} is not a list
@@ -645,9 +623,6 @@ ApplyRequiredStatus(type, requiredStatus):
           - Set {resultingType} to a list where the element is {resultingType}.
         - Continue onto the next node.
       - Set {resultingType} to {listType}
-- If {stack} is not empty:
-  - Raise a field error because {requiredStatus} had fewer list dimensions than
-    {outputType} and is invalid.
 - Return {resultingType}.
 
 ### Coercing Field Arguments
