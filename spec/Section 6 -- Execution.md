@@ -564,91 +564,35 @@ Each field requested in the grouped field set that is defined on the selected
 objectType will result in an entry in the response map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
-set or coercing a scalar value. `ccnPropagationPairs` is an unordered map where
-the keys are paths of required fields, and values are paths of the nearest
-optional parent to those required fields. `currentPropagationPath` starts as an
-empty path to indicate that `null` propagation should continue until it hits
-`data` if there is no optional field.
+set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
-currentPropagationPath, ccnPropagationPairs):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
-- Let {requiredStatus} be the required status of {field}.
-- Let {newPropagationPath} be {path} if {requiredStatus} is optional, otherwise
-  let {newPropagationPath} be {currentPropagationPath}
-- If {requiredStatus} is optional:
-  - Let {newPropagationPath} be {path}
-- If {requiredStatus} is required:
-  - Set {path} to {newPropagationPath} in {ccnPropagationPairs}
+- Let {nullabilityAssertionNode} be the nullability assertion node of
+  {fieldName}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
+  variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Let {modifiedFieldType} be {ApplyRequiredStatus(fieldType, requiredStatus)}.
-- Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue,
-  variableValues, newPropagationPath, ccnPropagationPairs)}.
+- Let {returnType} be {SimpleTypeTransfer(fieldType, nullabilityAssertionNode)}.
+- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
+  variableValues)}.
 
 ## Accounting For Client Controlled Nullability Designators
 
 A field can have its nullability status set either in its service's schema, or a
-nullability designator (`!` or `?`) can override it for the duration of an
-execution. In order to determine a field's true nullability, both are taken into
-account and a final type is produced. A field marked with a `!` is called a
-"required field" and a field marked with a `?` is called an optional field.
+nullability designator (`!`) can override it for the duration of an execution.
+In order to determine a field's true nullability, both are taken into account
+and a final type is produced. A field marked with a `!` is called a "required
+field".
 
-ApplyRequiredStatus(type, requiredStatus):
+SimpleTypeTransfer(fieldType, nullabilityAssertionNode):
 
-- If there is no {requiredStatus}:
-  - return {type}
-- If {requiredStatus} is not a list:
-  - If {requiredStatus} is required:
-    - return a `Non-Null` version of {type}
-  - If {requiredStatus} is optional:
-    - return a nullable version of {type}
-- Create a {stack} initially containing {type}.
-- As long as the top of {stack} is a list:
-  - Let {currentType} be the top item of {stack}.
-  - Push the {elementType} of {currentType} to the {stack}.
-- If {requiredStatus} exists:
-  - Start visiting {node}s in {requiredStatus} and building up a
-    {resultingType}:
-    - For each {node} that is a RequiredDesignator:
-      - If {resultingType} exists:
-        - Let {nullableResult} be the nullable type of {resultingType}.
-        - Set {resultingType} to the Non-Nullable type of {nullableResult}.
-        - Continue onto the next node.
-      - Pop the top of {stack} and let {nextType} be the result.
-      - Let {nullableType} be the nullable type of {nextType}.
-      - Set {resultingType} to the Non-Nullable type of {nullableType}.
-      - Continue onto the next node.
-    - For each {node} that is a OptionalDesignator:
-      - If {resultingType} exists:
-        - Set {resultingType} to the nullableType type of {resultingType}.
-        - Continue onto the next node.
-      - Pop the top of {stack} and let {nextType} be the result.
-      - Set {resultingType} to the nullable type of {resultingType}
-      - Continue onto the next node.
-    - For each {node} that is a ListNullabilityDesignator:
-      - Pop the top of {stack} and let {listType} be the result
-      - If the nullable type of {listType} is not a list
-        - Pop the top of {stack} and set {listType} to the result
-      - If {listType} does not exist:
-        - Raise a field error because {requiredStatus} had more list dimensions
-          than {outputType} and is invalid.
-      - If {resultingType} exist:
-        - If {listType} is Non-Nullable:
-          - Set {resultingType} to a Non-Nullable list where the element is
-            {resultingType}.
-        - Otherwise:
-          - Set {resultingType} to a list where the element is {resultingType}.
-        - Continue onto the next node.
-      - Set {resultingType} to {listType}
-- If {stack} is not empty:
-  - Raise a field error because {requiredStatus} had fewer list dimensions than
-    {outputType} and is invalid.
-- Return {resultingType}.
+- If {nullabilityAssertionNode} is a {Non-Null NullabilityDesignator}
+  - Return the Non-Nullable type of {fieldType}.
+- Return {fieldType}.
 
 ### Coercing Field Arguments
 
@@ -748,8 +692,12 @@ CompleteValue(fieldType, fields, result, variableValues):
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a field error.
   - Let {innerType} be the inner type of {fieldType}.
+  - Let {nullabilityAssertionNode} be the nullability assertion node of
+    {innerType}.
+  - Let {returnType} be {SimpleTypeTransfer(innerType,
+    nullabilityAssertionNode)}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
+    {CompleteValue(returnType, fields, resultItem, variableValues)}, where
     {resultItem} is each item in {result}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
@@ -865,9 +813,6 @@ Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
 to {null}, otherwise if it is a `Non-Null` type, the field error is further
 propagated to its parent field.
-
-If a required field resolves to {null}, propagation instead happens until an
-optional field is found.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`

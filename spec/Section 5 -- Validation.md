@@ -592,18 +592,19 @@ fragment conflictingDifferingResponses on Pet {
   - If {designatorDepth} is 0
     - return true
   - Let {typeDepth} be the number of list dimensions in {fieldType}
-  - If {typeDepth} equals {designatorDepth} or {designatorDepth} equals 0 return
-    true
-  - Otherwise return false
+  - If {designatorDepth} exceeds {typeDepth} return false
+  - Otherwise return true
 
 **Explanatory Text**
 
-List fields can be marked with nullability designators that look like `[?]!` to
+List fields can be marked with nullability designators that look like `[!]!` to
 indicate the nullability of the list's elements and the nullability of the list
 itself. For multi-dimensional lists, the designator would look something like
-`[[[!]?]]!`. If any `ListNullability` operators are used then the number of
-dimensions of the designator are required to match the number of dimensions of
-the field's type. If the two do not match then a validation error is thrown.
+`[[[!]]]!`. If any `ListNullability` operators are used then the number of
+dimensions of the designator are required to be less than or equal to the number
+of dimensions of the field's type. If the number of dimensions of the designator
+exceed the number of dimensions of the field's type, then a validation error is
+thrown.
 
 ### Leaf Field Selections
 
