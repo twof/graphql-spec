@@ -570,10 +570,13 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
+- Let {nullabilityAssertionNode} be the nullability assertion node of
+  {fieldName}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
+  variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
+- Let {returnType} be {SimpleTypeTransfer(fieldType, nullabilityAssertionNode)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
   variableValues)}.
 
@@ -585,45 +588,11 @@ In order to determine a field's true nullability, both are taken into account
 and a final type is produced. A field marked with a `!` is called a "required
 field".
 
-ApplyRequiredStatus(type, requiredStatus):
+SimpleTypeTransfer(fieldType, nullabilityAssertionNode):
 
-- If there is no {requiredStatus}:
-  - return {type}
-- If {requiredStatus} is not a list:
-  - If {requiredStatus} is required:
-    - return a `Non-Null` version of {type}
-- Create a {stack} initially containing {type}.
-- As long as the top of {stack} is a list:
-  - Let {currentType} be the top item of {stack}.
-  - Push the {elementType} of {currentType} to the {stack}.
-- If {requiredStatus} exists:
-  - Start visiting {node}s in {requiredStatus} and building up a
-    {resultingType}:
-    - For each {node} that is a RequiredDesignator:
-      - If {resultingType} exists:
-        - Let {nullableResult} be the nullable type of {resultingType}.
-        - Set {resultingType} to the Non-Nullable type of {nullableResult}.
-        - Continue onto the next node.
-      - Pop the top of {stack} and let {nextType} be the result.
-      - Let {nullableType} be the nullable type of {nextType}.
-      - Set {resultingType} to the Non-Nullable type of {nullableType}.
-      - Continue onto the next node.
-    - For each {node} that is a ListNullabilityDesignator:
-      - Pop the top of {stack} and let {listType} be the result
-      - If the nullable type of {listType} is not a list
-        - Pop the top of {stack} and set {listType} to the result
-      - If {listType} does not exist:
-        - Raise a field error because {requiredStatus} had more list dimensions
-          than {outputType} and is invalid.
-      - If {resultingType} exist:
-        - If {listType} is Non-Nullable:
-          - Set {resultingType} to a Non-Nullable list where the element is
-            {resultingType}.
-        - Otherwise:
-          - Set {resultingType} to a list where the element is {resultingType}.
-        - Continue onto the next node.
-      - Set {resultingType} to {listType}
-- Return {resultingType}.
+- If {nullabilityAssertionNode} is a {Non-Null NullabilityDesignator}
+  - Return the Non-Nullable type of {fieldType}.
+- Return {fieldType}.
 
 ### Coercing Field Arguments
 
@@ -723,8 +692,12 @@ CompleteValue(fieldType, fields, result, variableValues):
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a field error.
   - Let {innerType} be the inner type of {fieldType}.
+  - Let {nullabilityAssertionNode} be the nullability assertion node of
+    {innerType}.
+  - Let {returnType} be {SimpleTypeTransfer(innerType,
+    nullabilityAssertionNode)}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
+    {CompleteValue(returnType, fields, resultItem, variableValues)}, where
     {resultItem} is each item in {result}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
