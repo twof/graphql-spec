@@ -1241,8 +1241,8 @@ NonNullType :
 
 SemanticNonNullType :
 
-- ! NamedType
-- ! ListType
+- NamedType
+- ListType
 
 GraphQL describes the types of data expected by arguments and variables. Input
 types may be lists of another input type, or a non-null variant of any other
