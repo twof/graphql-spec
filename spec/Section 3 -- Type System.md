@@ -1905,17 +1905,16 @@ Following are examples of result coercion with various types and values:
 The GraphQL Semantic-Non-Null type is an alternative to the GraphQL Non-Null
 type to disallow null unless accompanied by a field error. This type wraps an
 underlying type, and this type acts identically to that wrapped type, with the
-exception that {null} will result in a field error being raised. A leading
-exclamation mark is used to denote a field that uses a Semantic-Non-Null type
-like this: `name: !String`.
+exception that {null} will result in a field error being raised. Semantic-Non-Null
+types are only valid in a document that also contains a `@SemanticNullability`
+document-level directive. In such a document, Semantic-Non-Null fields have no 
+adornment, much like nullable fields in documents without that directive. 
+For example: `name: String`.
 
+In docuements with a `@SemanticNullability` directive, input types are unaltered in
+terms of syntax. Unadorned types still represent nullable input types.
 Semantic-Non-Null types are only valid for use as an _output type_; they must
 not be used as an _input type_.
-
-**Nullable vs. Optional**
-
-Fields that return Semantic-Non-Null types will never return the value {null} if
-queried _unless_ an error has been logged for that field.
 
 **Result Coercion**
 
@@ -1947,8 +1946,8 @@ complex types. The rules for result coercion of Lists and Semantic-Non-Null
 types apply in a recursive fashion.
 
 For example if the inner item type of a List is Semantic-Non-Null (e.g. `[!T]`),
-then that List may not contain any {null} items unless associated field errors
-were raised. However if the inner type of a Semantic-Non-Null is a List (e.g.
+then if that list contains any nulls without associated errors, then field errors will be raised.
+However if the inner type of a Semantic-Non-Null is a List (e.g.
 `![T]`), then {null} is not accepted without an accompanying field error being
 raised, however an empty list is accepted.
 
@@ -1956,26 +1955,26 @@ Following are examples of result coercion with various types and values:
 
 | Expected Type | Internal Value  | Coerced Result                              |
 | ------------- | --------------- | ------------------------------------------- |
-| `![Int]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `![Int]`      | `null`          | `null` (With logged coercion error)         |
-| `![Int]`      | `[1, 2, null]`  | `[1, 2, null]`                              |
-| `![Int]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `![Int!]`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `![Int!]`     | `null`          | `null` (With logged coercion error)         |
-| `![Int!]`     | `[1, 2, null]`  | `null` (With logged coercion error)         |
-| `![Int!]`     | `[1, 2, Error]` | `null` (With logged error)                  |
-| `[!Int]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[!Int]`      | `null`          | `null`                                      |
-| `[!Int]`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[!Int]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `[!Int]!`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[!Int]!`     | `null`          | Error: Value cannot be null                 |
-| `[!Int]!`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[!Int]!`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `![!Int]`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `![!Int]`     | `null`          | `null` (With logged coercion error)         |
-| `![!Int]`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `![!Int]`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int]`       | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int]`       | `null`          | `null` (With logged coercion error)         |
+| `[Int]`       | `[1, 2, null]`  | `[1, 2, null]`                              |
+| `[Int]`       | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int!]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int!]`      | `null`          | `null` (With logged coercion error)         |
+| `[Int!]`      | `[1, 2, null]`  | `null` (With logged coercion error)         |
+| `[Int!]`      | `[1, 2, Error]` | `null` (With logged error)                  |
+| `[Int]`       | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int]`       | `null`          | `null`                                      |
+| `[Int]`       | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int]`       | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int]!`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int]!`      | `null`          | Error: Value cannot be null                 |
+| `[Int]!`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int]!`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int]`       | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int]`       | `null`          | `null` (With logged coercion error)         |
+| `[Int]`       | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int]`       | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
 
 ## Directives
 
@@ -2016,6 +2015,7 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+- `DOCUMENT`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
@@ -2025,7 +2025,8 @@ by a validator, executor, or client tool such as a code generator.
 
 :: A _built-in directive_ is any directive defined within this specification.
 
-GraphQL implementations should provide the `@skip` and `@include` directives.
+GraphQL implementations should provide the `@skip`, `@include`, and 
+`@semanticNullability` directives.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
@@ -2179,6 +2180,20 @@ or fragment, it _must_ be queried only if the `@skip` condition is false _and_
 the `@include` condition is true. Stated conversely, the field or fragment must
 _not_ be queried if either the `@skip` condition is true _or_ the `@include`
 condition is false.
+
+### @semanticNullability
+
+```graphql
+directive @semanticNullability on DOCUMENT
+```
+
+The `@semanticNullability` _built-in directive_ may be provided for documents,
+and causes GraphQL to interpret nullability in that document based on the rules
+for Semantic Nullability. In that document an unadorned named type will be treated
+as if it is wrapped with the Semantic-Non-Null type. Any fields adorned with a question
+mark ie `name: Type?` will be treated as a named nullable type.
+
+An unadorned input type will be treated as a nullable type.
 
 ### @deprecated
 
