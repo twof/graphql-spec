@@ -1224,6 +1224,8 @@ that variable, that operation is invalid (see
 
 ## Type References
 
+### In traditional nullability mode
+
 Type :
 
 - NamedType
@@ -1239,10 +1241,49 @@ NonNullType :
 - NamedType !
 - ListType !
 
-SemanticNonNullType :
+**Semantics**
+
+Type : Name
+
+- Let {name} be the string value of {Name}
+- Let {type} be the type defined in the Schema named {name}
+- {type} must not be {null}
+- Return {type}
+
+Type : [ Type ]
+
+- Let {itemType} be the result of evaluating {Type}
+- Let {type} be a List type where {itemType} is the contained type.
+- Return {type}
+
+Type : Type !
+
+- Let {nullableType} be the result of evaluating {Type}
+- Let {type} be a Non-Null type where {nullableType} is the contained type.
+- Return {type}
+
+### In semantic nullability mode
+
+Type :
 
 - NamedType
 - ListType
+- NonNullType
+- SemanticNonNullType
+
+NamedType : Name ?
+
+ListType : [ Type ]
+
+NonNullType :
+
+- Name !
+- ListType !
+
+SemanticNonNullType :
+
+- Name [lookahead != `?`] [lookahead != `!`]
+- ListType [lookahead != `?`] [lookahead != `!`]
 
 GraphQL describes the types of data expected by arguments and variables. Input
 types may be lists of another input type, or a non-null variant of any other
@@ -1255,6 +1296,17 @@ Type : Name
 - Let {name} be the string value of {Name}
 - Let {type} be the type defined in the Schema named {name}
 - {type} must not be {null}
+- Return {type}
+
+Type : Type ?
+
+- Let {nullableType} be the result of evaluating {Type}
+- Return {nullableType}
+
+Type : Type [lookahead != `?`] [lookahead != `!`]
+
+- Let {nullableType} be the result of evaluating {Type}
+- Let {type} be a Semantically-Non-Null type where {nullableType} is the contained type.
 - Return {type}
 
 Type : [ Type ]
