@@ -165,11 +165,16 @@ enum __TypeKind {
   SEMANTIC_NON_NULL
 }
 
+enum __NullabilityMode {
+  TRADITIONAL
+  FULL
+}
+
 type __Field {
   name: String!
   description: String
   args(includeDeprecated: Boolean = false): [__InputValue!]!
-  type(includeSemanticNonNull: Boolean! = false): __Type!
+  type(nullabilityMode: __NullabilityMode! = __NullabilityMode.TRADITIONAL): __Type!
   isDeprecated: Boolean!
   deprecationReason: String
 }
@@ -416,8 +421,9 @@ Fields\:
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
 A Semantic-Non-Null type is a type modifier: it wraps another _output type_
-instance in the `ofType` field. Semantic-Non-Null types do not allow {null} as a
-response _unless_ an associated _field error_ has been raised.
+instance in the `ofType` field. Semantic-Non-Null types allow {null} as a
+response, however if an associated _field error_ has not already been raised,
+one will be produced.
 
 The modified type in the `ofType` field may itself be a modified List type,
 allowing the representation of Semantic-Non-Null of Lists. However it must not
@@ -445,8 +451,8 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `type` must return a `__Type` that represents the type of value returned by
   this field.
-  - Accepts the argument `includeSemanticNonNull` which defaults to {false}. If
-    {false}, let {fieldType} be the type of value returned by this field and
+  - Accepts the argument `nullabilityMode` which defaults to {__NullabilityMode.TRADITIONAL}. If
+    {__NullabilityMode.TRADITIONAL}, let {fieldType} be the type of value returned by this field and
     instead return a `__Type` that represents
     {RecursivelyStripSemanticNonNullTypes(fieldType)}.
 - `isDeprecated` returns {true} if this field should no longer be used,
