@@ -784,8 +784,8 @@ response.
 
 If the result of resolving a field is {null} (either because the function to
 resolve the field returned {null} or because a field error was raised), and that
-field is of a `Non-Null` type, then a field error is raised. The error must be
-added to the {"errors"} list in the response.
+field is of a `Non-Null` or `Semantically-Non-Null` type, then a field error is
+raised. The error must be added to the {"errors"} list in the response.
 
 If the field returns {null} because of a field error which has already been
 added to the {"errors"} list in the response, the {"errors"} list must not be
